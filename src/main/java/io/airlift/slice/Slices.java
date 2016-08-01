@@ -39,7 +39,8 @@ public final class Slices
     private static final int SLICE_ALLOC_THRESHOLD = 524_288; // 2^19
     private static final double SLICE_ALLOW_SKEW = 1.25; // must be > 1!
 
-    private Slices() {}
+    private Slices()
+    {}
 
     public static Slice ensureSize(Slice existingSlice, int minWritableBytes)
     {
@@ -111,7 +112,14 @@ public final class Slices
     {
         if (buffer.isDirect()) {
             long address = getAddress(buffer);
-            return new Slice(null, address + buffer.position(), buffer.limit() - buffer.position(), buffer.capacity(), buffer);
+            final int capacity;
+            if (buffer instanceof MappedByteBuffer) {
+                capacity = 0;
+            }
+            else {
+                capacity = buffer.capacity();
+            }
+            return new Slice(null, address + buffer.position(), buffer.limit() - buffer.position(), capacity, buffer);
         }
 
         if (buffer.hasArray()) {
